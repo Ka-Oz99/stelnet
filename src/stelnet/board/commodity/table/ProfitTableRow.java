@@ -26,6 +26,10 @@ public class ProfitTableRow implements Comparable<ProfitTableRow>, TableContentR
     private final MarketAPI sellMarket;
     private float profit;
     private int quantity;
+    private float buyExpense;
+    private float sellRevenue;
+    private int rank;
+    private boolean numbered = false;
 
     public ProfitTableRow(MarketAPI buyMarket, MarketAPI sellMarket, String commodityId) {
         this(buyMarket, sellMarket);
@@ -35,14 +39,14 @@ public class ProfitTableRow implements Comparable<ProfitTableRow>, TableContentR
     }
 
     private void addAllCells(String commodityId) {
-        float buyPrice = new SupplyPrice(commodityId).getTotalPrice(buyMarket, quantity);
-        float sellPrice = new DemandPrice(commodityId).getTotalPrice(sellMarket, quantity);
+        buyExpense = new SupplyPrice(commodityId).getTotalPrice(buyMarket, quantity);
+        sellRevenue = new DemandPrice(commodityId).getTotalPrice(sellMarket, quantity);
         Color rowColor = getRowColor(Misc.getTextColor());
         addCell(rowColor, Misc.getDGSCredits(profit) + "  (" + Misc.getWithDGS(quantity) + ")");
         addCell(buyMarket.getTextColorForFactionOrPlanet(), StelnetHelper.getMarketWithFactionName(buyMarket));
-        addCell(rowColor, Misc.getDGSCredits(buyPrice));
+        addCell(rowColor, Misc.getDGSCredits(buyExpense));
         addCell(sellMarket.getTextColorForFactionOrPlanet(), StelnetHelper.getMarketWithFactionName(sellMarket));
-        addCell(rowColor, Misc.getDGSCredits(sellPrice));
+        addCell(rowColor, Misc.getDGSCredits(sellRevenue));
         addCell(rowColor, String.format("%.1f", getDistance()));
     }
 
@@ -53,6 +57,13 @@ public class ProfitTableRow implements Comparable<ProfitTableRow>, TableContentR
     }
 
     public void addNumber(int number) {
+        if (numbered) {
+            elements.set(1, getRowColor(Misc.getGrayColor()));
+            elements.set(2, number + ".");
+            return;
+        }
+        rank = number;
+        numbered = true;
         elements.add(0, number + ".");
         elements.add(0, getRowColor(Misc.getGrayColor()));
         elements.add(0, Alignment.MID);
@@ -98,7 +109,7 @@ public class ProfitTableRow implements Comparable<ProfitTableRow>, TableContentR
         return Math.min(available, demand);
     }
 
-    private float getDistance() {
+    public float getDistance() {
         float playerToBuy = Misc.getDistanceToPlayerLY(buyMarket.getPrimaryEntity());
         float buyToSell = Misc.getDistanceLY(buyMarket.getPrimaryEntity(), sellMarket.getPrimaryEntity());
         return playerToBuy + buyToSell;
