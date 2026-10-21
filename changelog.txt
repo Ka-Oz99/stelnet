@@ -1,4 +1,6 @@
 Unreleased (TBD)
+- Add sortable columns to Commodity Market tables (Buy, Sell, Profit) - click a column title above the table to sort
+  ascending, click again for descending, once more to clear; the "#" button restores the original order.
 
 
 Version 3.3.0 (2025.05.14)
